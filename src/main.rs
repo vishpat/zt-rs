@@ -25,6 +25,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bin_atts = search_entry.bin_attrs;
     let der_cert = bin_atts.get("userCertificate").unwrap()[0].clone();
     let cert = X509Cert::from_der(&der_cert)?;
-    println!("{:?}", cert);
+    println!("{:?}", cert.public_key());
     Ok(ldap.unbind()?)
 }
