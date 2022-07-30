@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use ldap3::{LdapConn, Scope, SearchEntry};
 use openssl::x509::X509 as X509Cert;
 
@@ -21,7 +19,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let entry = rs.into_iter().next().unwrap();
     let search_entry = SearchEntry::construct(entry);
-    let dn = search_entry.dn;
     let bin_atts = search_entry.bin_attrs;
     let der_cert = bin_atts.get("userCertificate").unwrap()[0].clone();
     let cert = X509Cert::from_der(&der_cert)?;
