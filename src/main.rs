@@ -1,5 +1,7 @@
 use ldap3::{LdapConn, Scope, SearchEntry};
 use openssl::x509::X509 as X509Cert;
+use openssl::rsa::{Rsa, Padding};
+use openssl::base64;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> { 
     let mut ldap = LdapConn::new("ldap://localhost:389")?;
@@ -22,6 +24,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bin_atts = search_entry.bin_attrs;
     let der_cert = bin_atts.get("userCertificate").unwrap()[0].clone();
     let cert = X509Cert::from_der(&der_cert)?;
-    println!("{:?}", cert.public_key());
+    let rsa = cert.public_key()?.rsa()?;
+    let data = b"abc";
+    let mut buf = vec![0; rsa.size() as usize];
+    let encrypted_len = rsa.public_encrypt(data, &mut buf, Padding::PKCS1).unwrap();
+    println!("{}", base64::encode_block(&buf[..encrypted_len]));
     Ok(ldap.unbind()?)
 }
