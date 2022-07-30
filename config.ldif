@@ -1,0 +1,94 @@
+# The t}op level domain
+
+dn: dc=ztrs,dc=us,dc=com
+description: Ztrs LLC
+dc: ztrs
+o: ZtrsLLC
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+
+# Subtree for users
+
+dn: ou=Users,dc=ztrs,dc=us,dc=com
+ou: Users
+description: Computer Users
+objectClass: organizationalUnit
+
+# Subtree for service accounts
+dn: ou=Service,dc=ztrs,dc=us,dc=com
+ou: Service
+description: Special accounts used by software applications
+objectClass: organizationalUnit
+
+# Subtree for authorization roles
+dn: ou=Groups,dc=ztrs,dc=us,dc=com
+ou: Groups
+description: Branch for groups
+objectClass: organizationalUnit
+
+#
+# Users
+# 
+dn: uid=sadams,ou=Users,dc=ztrs,dc=us,dc=com
+uid: alice 
+userPassword: secret
+ou: Users
+cn: Alice 
+sn: Alice 
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+ 
+
+dn: uid=bob,ou=Users,dc=ztrs,dc=us,dc=com
+uid: bob 
+userPassword: secret
+ou: Users
+cn: Bob 
+sn: Bob 
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+
+
+dn: uid=charlie,ou=Users,dc=ztrs,dc=us,dc=com
+uid: charlie 
+userPassword: secret
+ou: Users
+cn: Charlie 
+sn: Charlie 
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+
+
+dn: uid=dan,ou=Users,dc=ztrs,dc=us,dc=com
+uid: dan 
+userPassword: secret
+ou: Users
+cn: Dan 
+sn: Dan 
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+
+#
+# Groups
+#
+dn: cn=Eng,ou=Groups,dc=ztrs,dc=us,dc=com
+cn: Eng
+ou: Groups
+member: uid=alice,ou=Users,dc=ztrs,dc=us,dc=com
+member: uid=bob,ou=Users,dc=ztrs,dc=us,dc=com
+description: Engineering Group 
+objectClass: groupOfNames
+
+
+dn: cn=Infra,ou=Groups,dc=ztrs,dc=us,dc=com
+cn: Infra 
+ou: Groups
+member: uid=charlie,ou=Users,dc=ztrs,dc=us,dc=com
+member: uid=dan,ou=Users,dc=ztrs,dc=us,dc=com
+description: Infrastructure Group 
+objectClass: groupOfNames
