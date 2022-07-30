@@ -20,7 +20,7 @@ objectClass: organizationalUnit
 #
 # Users
 # 
-dn: uid=sadams,ou=Users,dc=openmicroscopy,dc=org
+dn: uid=alice,ou=Users,dc=openmicroscopy,dc=org
 uid: alice 
 userPassword: secret
 ou: Users
