@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 ldap3 = "0.10.5"
+openssl = "0.10"
