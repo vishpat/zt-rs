@@ -12,4 +12,4 @@ for usr in ${users[@]}; do
   openssl x509 -outform DER -in cert-$usr.pem  -out $usr.der
 done
 
-ldapmodify -H ldap://localhost:389 -D uid=admin,ou=system -w secret cert.ldif
+ldapmodify -H ldap://localhost:389 -D uid=admin,ou=system -w secret -f certs.ldif
