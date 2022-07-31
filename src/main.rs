@@ -9,17 +9,6 @@ use ldap3::{LdapConnAsync, Scope, SearchEntry};
 use openssl::base64;
 use openssl::rsa::Padding;
 use openssl::x509::X509 as X509Cert;
-use std::fmt;
-
-struct TokenError {
-    message: String,
-}
-
-impl fmt::Display for TokenError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
 
 #[derive(Serialize, Deserialize)]
 struct LdapConfig {
@@ -27,6 +16,45 @@ struct LdapConfig {
     bind_dn: String,
     bind_pwd: String,
     base: String,
+    user_filter: String,
+}
+
+async fn user_groups(
+    user: &str,
+    ldap_config: &LdapConfig,
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let (conn, mut ldap) = LdapConnAsync::new(ldap_config.url.as_str()).await?;
+    ldap3::drive!(conn);
+    ldap.simple_bind(ldap_config.bind_dn.as_str(), ldap_config.bind_pwd.as_str())
+        .await?;
+
+    let filter = format!(
+        "(&(objectClass=groupOfNames)(member=uid={},{}))",
+        user, ldap_config.user_filter
+    );
+    println!("{}", filter);
+
+    let (rs, _res) = ldap
+        .search(
+            ldap_config.base.as_str(),
+            Scope::Subtree,
+            &filter,
+            vec!["cn"],
+        )
+        .await?
+        .success()?;
+
+    let mut groups = vec![];
+    if rs.is_empty() {
+        return Ok(groups);
+    }
+    for entry in rs {
+        let entry = entry;
+        let search_entry = SearchEntry::construct(entry);
+        let cn = search_entry.attrs.get("cn").unwrap();
+        groups = groups.iter().chain(cn).cloned().collect();
+    }
+    Ok(groups)
 }
 
 async fn encrypt_token(
@@ -49,6 +77,9 @@ async fn encrypt_token(
         .await?
         .success()?;
 
+    if rs.is_empty() {
+        return Ok("User not found".into());
+    }
     let entry = rs.into_iter().next().unwrap();
     let search_entry = SearchEntry::construct(entry);
     let bin_atts = search_entry.bin_attrs;
@@ -72,6 +103,7 @@ struct TokenClaims {
     exp: u64,
     iat: u64,
     sub: String,
+    groups: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -107,13 +139,16 @@ async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> imp
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs();
-
+    let groups = user_groups(&user_info.name, &state.ldap_config)
+        .await
+        .unwrap();
     let jwt_str = jwt::encode(
         &jwt::Header::new(alg),
         &TokenClaims {
             exp: ctime + 3600,
             iat: ctime,
             sub: user_info.name.clone(),
+            groups,
         },
         &jwk.key.to_encoding_key(),
     )
