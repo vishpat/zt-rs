@@ -1,6 +1,6 @@
 extern crate jsonwebkey as jwk;
 extern crate jsonwebtoken as jwt;
-use actix_web::{get, post, web, App, HttpRequest, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpRequest, HttpServer};
 use jwk::JsonWebKey;
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -97,7 +97,7 @@ async fn encrypt_token(
     let data = jwt.as_bytes();
     let rsa = public_key(user, ldap_config).await;
     if rsa.is_err() {
-        return Err(rsa.unwrap_err());
+        return Ok(format!("Public key not found for user {}", user));
     }
     let pub_key = rsa.unwrap();
     let mut buf = vec![0; pub_key.size() as usize];
@@ -148,7 +148,7 @@ struct UserInfo {
 const TOKEN_VALID_DURATION: u64 = 300;
 
 #[post("/token")]
-async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> impl Responder {
+async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> String {
     let jwk = state.jwk.clone();
     let alg: jwt::Algorithm = jwk.algorithm.unwrap().into();
     let ctime = SystemTime::now()
