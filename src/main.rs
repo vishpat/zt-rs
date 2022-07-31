@@ -130,7 +130,7 @@ struct UserInfo {
     name: String,
 }
 
-const TOKEN_VALID_DURATION_SECS: u64 = 300;
+const TOKEN_VALIDITY_DURATION_SECS: u64 = 300;
 
 #[post("/token")]
 async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> impl Responder {
@@ -146,7 +146,7 @@ async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> imp
     let jwt_str = jwt::encode(
         &jwt::Header::new(alg),
         &TokenClaims {
-            exp: ctime + TOKEN_VALID_DURATION_SECS,
+            exp: ctime + TOKEN_VALIDITY_DURATION_SECS,
             iat: ctime,
             sub: user_info.name.clone(),
             groups,
