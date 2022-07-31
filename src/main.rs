@@ -7,7 +7,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use ldap3::{LdapConnAsync, Scope, SearchEntry};
 use openssl::base64;
-use openssl::rsa::Padding;
+use openssl::pkey::Public;
+use openssl::rsa::{Padding, Rsa};
 use openssl::x509::X509 as X509Cert;
 
 #[derive(Serialize, Deserialize)]
@@ -56,11 +57,10 @@ async fn user_groups(
     Ok(groups)
 }
 
-async fn encrypt_token(
+async fn public_key(
     user: &str,
-    jwt: &str,
     ldap_config: &LdapConfig,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<Rsa<Public>, Box<dyn std::error::Error>> {
     let (conn, mut ldap) = LdapConnAsync::new(ldap_config.url.as_str()).await?;
     ldap3::drive!(conn);
     ldap.simple_bind(ldap_config.bind_dn.as_str(), ldap_config.bind_pwd.as_str())
@@ -77,7 +77,7 @@ async fn encrypt_token(
         .success()?;
 
     if rs.is_empty() {
-        return Ok("User not found".into());
+        return Err("User not found".into());
     }
     let entry = rs.into_iter().next().unwrap();
     let search_entry = SearchEntry::construct(entry);
@@ -85,10 +85,25 @@ async fn encrypt_token(
     let der_cert = bin_atts.get("userCertificate").unwrap()[0].clone();
     let cert = X509Cert::from_der(&der_cert)?;
     let rsa = cert.public_key()?.rsa()?;
-    let data = jwt.as_bytes();
-    let mut buf = vec![0; rsa.size() as usize];
-    let encrypted_len = rsa.public_encrypt(data, &mut buf, Padding::PKCS1).unwrap();
     ldap.unbind().await?;
+    Ok(rsa)
+}
+
+async fn encrypt_token(
+    user: &str,
+    jwt: &str,
+    ldap_config: &LdapConfig,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let data = jwt.as_bytes();
+    let rsa = public_key(user, ldap_config).await;
+    if rsa.is_err() {
+        return Err(rsa.unwrap_err());
+    }
+    let pub_key = rsa.unwrap();
+    let mut buf = vec![0; pub_key.size() as usize];
+    let encrypted_len = pub_key
+        .public_encrypt(data, &mut buf, Padding::PKCS1)
+        .unwrap();
     Ok(base64::encode_block(&buf[..encrypted_len]))
 }
 
@@ -130,7 +145,7 @@ struct UserInfo {
     name: String,
 }
 
-const TOKEN_VALIDITY_DURATION_SECS: u64 = 300;
+const TOKEN_VALID_DURATION: u64 = 300;
 
 #[post("/token")]
 async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> impl Responder {
@@ -146,7 +161,7 @@ async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> imp
     let jwt_str = jwt::encode(
         &jwt::Header::new(alg),
         &TokenClaims {
-            exp: ctime + TOKEN_VALIDITY_DURATION_SECS,
+            exp: ctime + TOKEN_VALID_DURATION,
             iat: ctime,
             sub: user_info.name.clone(),
             groups,
