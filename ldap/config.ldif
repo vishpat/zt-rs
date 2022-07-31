@@ -76,8 +76,9 @@ objectClass: groupOfNames
 
 
 dn: cn=Infra,ou=Groups,dc=openmicroscopy,dc=org
-cn: Infra 
+cn: Infra
 ou: Groups
+member: uid=alice,ou=Users,dc=openmicroscopy,dc=org
 member: uid=charlie,ou=Users,dc=openmicroscopy,dc=org
 member: uid=dan,ou=Users,dc=openmicroscopy,dc=org
 description: Infrastructure Group 

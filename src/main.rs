@@ -32,7 +32,6 @@ async fn user_groups(
         "(&(objectClass=groupOfNames)(member=uid={},{}))",
         user, ldap_config.user_filter
     );
-    println!("{}", filter);
 
     let (rs, _res) = ldap
         .search(
@@ -131,6 +130,8 @@ struct UserInfo {
     name: String,
 }
 
+const TOKEN_VALID_DURATION: u64 = 300;
+
 #[post("/token")]
 async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> impl Responder {
     let jwk = state.jwk.clone();
@@ -145,7 +146,7 @@ async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> imp
     let jwt_str = jwt::encode(
         &jwt::Header::new(alg),
         &TokenClaims {
-            exp: ctime + 3600,
+            exp: ctime + TOKEN_VALID_DURATION,
             iat: ctime,
             sub: user_info.name.clone(),
             groups,
