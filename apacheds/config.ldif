@@ -42,35 +42,12 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 
 
-dn: uid=charlie,ou=Users,dc=openmicroscopy,dc=org
-uid: charlie 
-userPassword: secret
-ou: Users
-cn: Charlie 
-sn: Charlie 
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-
-
-dn: uid=dan,ou=Users,dc=openmicroscopy,dc=org
-uid: dan 
-userPassword: secret
-ou: Users
-cn: Dan 
-sn: Dan 
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-
-#
 # Groups
 #
 dn: cn=Eng,ou=Groups,dc=openmicroscopy,dc=org
 cn: Eng
 ou: Groups
 member: uid=alice,ou=Users,dc=openmicroscopy,dc=org
-member: uid=bob,ou=Users,dc=openmicroscopy,dc=org
 description: Engineering Group 
 objectClass: groupOfNames
 
@@ -78,21 +55,6 @@ objectClass: groupOfNames
 dn: cn=Infra,ou=Groups,dc=openmicroscopy,dc=org
 cn: Infra
 ou: Groups
-member: uid=alice,ou=Users,dc=openmicroscopy,dc=org
-member: uid=charlie,ou=Users,dc=openmicroscopy,dc=org
-member: uid=dan,ou=Users,dc=openmicroscopy,dc=org
+member: uid=bob,ou=Users,dc=openmicroscopy,dc=org
 description: Infrastructure Group 
 objectClass: groupOfNames
-
-#
-# Service Accounts
-#
-dn: uid=jwt,ou=Service,dc=openmicroscopy,dc=org
-uid:  jwt 
-userPassword: secret
-ou: Service 
-cn: JWT 
-sn: JWT
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson

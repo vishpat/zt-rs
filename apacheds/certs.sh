@@ -3,7 +3,7 @@
 rm -f *.pem
 rm -f *.der
 
-users=("alice" "bob" "charlie" "dan")
+users=("alice" "bob")
 for usr in ${users[@]}; do
   echo $usr
   openssl genrsa -out private-key-$usr.pem 2048
