@@ -1,0 +1,7 @@
+{
+  "url": "ldap://localhost:389",
+  "bind_dn": "uid=jwt,ou=service,dc=openmicroscopy,dc=org",
+  "bind_pwd": "secret",
+  "base": "dc=openmicroscopy,dc=org",
+  "user_filter": "ou=users,dc=openmicroscopy,dc=org"
+}
