@@ -5,6 +5,8 @@ use jwk::JsonWebKey;
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use std::fs::read_to_string as read_to_string;
+use serde_json::from_str as json_from_str;
 use ldap3::{LdapConnAsync, Scope, SearchEntry};
 use openssl::base64;
 use openssl::pkey::Public;
@@ -176,11 +178,11 @@ async fn token(user_info: web::Json<UserInfo>, state: web::Data<AppData>) -> Str
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let contents = std::fs::read_to_string("key.json")?;
-    let ldap_config_str = std::fs::read_to_string("ldap.json")?;
-    let ldap_config = serde_json::from_str(&ldap_config_str)?;
+    let contents = read_to_string("key.json")?;
+    let ldap_config_str = read_to_string("ldap.json")?;
+    let ldap_config = json_from_str(&ldap_config_str)?;
 
-    let mut jwk: JsonWebKey = serde_json::from_str(&contents)?;
+    let mut jwk: JsonWebKey = json_from_str(&contents)?;
     jwk.set_algorithm(jwk::Algorithm::ES256)
         .expect("Failed to set algorithm");
 
