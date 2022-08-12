@@ -58,3 +58,17 @@ ou: Groups
 member: uid=bob,ou=Users,dc=openmicroscopy,dc=org
 description: Infrastructure Group 
 objectClass: groupOfNames
+
+
+#
+# Service Accounts
+#
+dn: uid=jwt,ou=Service,dc=openmicroscopy,dc=org
+uid:  jwt 
+userPassword: secret
+ou: Service 
+cn: JWT 
+sn: JWT
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
