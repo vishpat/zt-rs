@@ -60,26 +60,28 @@ path "secret/kv/users/alice/*" {
                 EOT
 }
 
-## Role to access the eng secrets
-## 
-#resource "vault_jwt_auth_backend_role" "jwt_eng" {
-#  backend        = vault_jwt_auth_backend.jwt_auth.path
-#  role_name      = "jwt_eng"
-#  token_policies = ["eng_policy"]
-#
-#  groups_claim  = "eng"
-#  user_claim      = "sub"
-#  role_type       = "jwt"
-#}
-#
-#resource "vault_policy" "eng_policy" {
-#  name   = "eng_policy"
-#  policy = <<EOT
-#
-#path "secret/kv/groups/eng/*" {
-#    capabilities = [ "create", "read", 
-#      "update", "delete", "list" ]
-#}
-#
-#                EOT
-#}
+# Role to access the eng secrets
+# 
+resource "vault_jwt_auth_backend_role" "jwt_eng" {
+  backend        = vault_jwt_auth_backend.jwt_auth.path
+  role_name      = "jwt_eng"
+  token_policies = ["eng_policy"]
+
+  bound_claims = {
+    groups = "Eng"
+  }
+  user_claim      = "sub"
+  role_type       = "jwt"
+}
+
+resource "vault_policy" "eng_policy" {
+  name   = "eng_policy"
+  policy = <<EOT
+
+path "secret/kv/groups/eng/*" {
+    capabilities = [ "create", "read", 
+      "update", "delete", "list" ]
+}
+
+                EOT
+}
