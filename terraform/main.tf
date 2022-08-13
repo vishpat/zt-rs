@@ -9,7 +9,6 @@ provider "vault" {
 }
 
 # Enable Auditing
-
 resource "vault_audit" "test" {
   type = "file"
 
@@ -19,7 +18,6 @@ resource "vault_audit" "test" {
 }
 
 # Enable version 1 kv store
-
 resource "vault_mount" "kv" {
   path        = "kv"
   type        = "kv-v1"
@@ -28,7 +26,6 @@ resource "vault_mount" "kv" {
 
 
 # Enable JWT authentication 
-
 resource "vault_jwt_auth_backend" "jwt_auth" {
     description = "Enable JWT auth"
     path = "jwt"
@@ -36,7 +33,6 @@ resource "vault_jwt_auth_backend" "jwt_auth" {
 }
 
 # Role for Alice to access key private secrets
-
 resource "vault_jwt_auth_backend_role" "jwt_alice" {
   backend        = vault_jwt_auth_backend.jwt_auth.path
   role_name      = "jwt_alice"
@@ -60,7 +56,8 @@ path "secret/kv/users/alice/*" {
                 EOT
 }
 
-# Role to access the eng secrets
+#
+# Role to access the common Eng secrets
 # 
 resource "vault_jwt_auth_backend_role" "jwt_eng" {
   backend        = vault_jwt_auth_backend.jwt_auth.path
