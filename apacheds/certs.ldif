@@ -9,15 +9,3 @@ dn: uid=bob,ou=Users,dc=openmicroscopy,dc=org
 changetype: modify
 add: userCertificate;binary
 userCertificate;binary:< file:bob.der
-
-version: 1
-dn: uid=charlie,ou=Users,dc=openmicroscopy,dc=org
-changetype: modify
-add: userCertificate;binary
-userCertificate;binary:< file:charlie.der
-
-version: 1
-dn: uid=dan,ou=Users,dc=openmicroscopy,dc=org
-changetype: modify
-add: userCertificate;binary
-userCertificate;binary:< file:dan.der
