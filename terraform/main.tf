@@ -20,7 +20,8 @@ resource "vault_audit" "test" {
 # Enable version 1 kv store
 resource "vault_mount" "kv" {
   path        = "kv"
-  type        = "kv-v1"
+  type        = "kv"
+  options     = { version = "1" }
   description = "Key-Value store"
 }
 
@@ -48,7 +49,7 @@ resource "vault_policy" "alice_policy" {
   name   = "alice_policy"
   policy = <<EOT
 
-path "secret/kv/users/alice/*" {
+path "secret/data/kv/users/alice/*" {
     capabilities = [ "create", "read", 
         "update", "delete", "list" ]
 }
@@ -75,7 +76,7 @@ resource "vault_policy" "eng_policy" {
   name   = "eng_policy"
   policy = <<EOT
 
-path "secret/kv/groups/eng/*" {
+path "secret/data/kv/groups/eng/*" {
     capabilities = [ "create", "read", 
       "update", "delete", "list" ]
 }
