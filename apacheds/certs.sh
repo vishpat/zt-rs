@@ -6,7 +6,8 @@ rm -f *.der
 users=("alice" "bob")
 for usr in ${users[@]}; do
   echo $usr
-  openssl genrsa -out private-key-$usr.pem 2048
+  openssl genrsa -out private-key-$usr.pem 2048 
+  openssl rsa -traditional -in private-key-$usr.pem -out private-key-$usr.pkcs1.pem
   openssl rsa -in private-key-$usr.pem -pubout -out public-key-$usr.pem
   openssl req -new -x509 -key private-key-$usr.pem -out cert-$usr.pem -days 360
   openssl x509 -outform DER -in cert-$usr.pem  -out $usr.der
